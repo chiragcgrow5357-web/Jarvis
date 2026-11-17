@@ -1,1 +1,172 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JARVIS AI</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;background:#050b18;color:#eaf5ff;
+ font-family:Arial,sans-serif;text-align:center;padding:20px;
+}
+h1{color:#00d9ff;letter-spacing:5px;margin-top:25px}
+.core{
+ width:145px;height:145px;border-radius:50%;
+ margin:30px auto;background:radial-gradient(circle,#00eaff,#07345b 60%,#050b18);
+ box-shadow:0 0 35px #00cfff;
+ animation:pulse 2s infinite;
+}
+@keyframes pulse{50%{box-shadow:0 0 65px #00dfff}}
+#chat{
+ height:300px;overflow-y:auto;border:1px solid #126080;
+ border-radius:12px;padding:12px;text-align:left;
+ margin:20px 0;background:#081525;
+}
+.msg{margin:12px 0;line-height:1.5}
+.user{color:#00eaff}
+.jarvis{color:#fff}
+input{
+ width:100%;padding:15px;border-radius:10px;
+ border:1px solid #00bddd;background:#0b1b2d;
+ color:white;font-size:16px;
+}
+button{
+ padding:13px 17px;margin:6px;border:0;
+ border-radius:9px;background:#007eaa;
+ color:white;font-size:15px;
+}
+.small{font-size:12px;color:#91aabd}
+</style>
+</head>
+<body>
+<h1>J.A.R.V.I.S</h1>
+<p class="small">YOUR PERSONAL ASSISTANT</p>
+<div class="core"></div>
+<div id="chat">
+ <div class="msg jarvis">JARVIS: Hello! I am ready. How can I help you?</div>
+</div>
+<input id="input" placeholder="Ask me something..." />
+<button onclick="send()">SEND</button>
+<button onclick="listen()">🎤 SPEAK</button>
+<button onclick="speakLast()">🔊 REPEAT</button>
+<br>
+<button onclick="openSite('https://www.google.com')">Google</button>
+<button onclick="openSite('https://www.youtube.com')">YouTube</button>
+<button onclick="openSite('https://www.google.com/maps')">Maps</button>
+<p class="small">JARVIS FREE EDITION • No API required</p>
+
+<script>
+let lastReply="Hello! I am JARVIS.";
+
+function addMessage(who,text){
+ const chat=document.getElementById("chat");
+ const div=document.createElement("div");
+ div.className="msg "+who;
+ div.textContent=(who==="user"?"YOU: ":"JARVIS: ")+text;
+ chat.appendChild(div);
+ chat.scrollTop=chat.scrollHeight;
+}
+
+function reply(text){
+ lastReply=text;
+ addMessage("jarvis",text);
+ speakLast();
+}
+
+function send(){
+ const box=document.getElementById("input");
+ const text=box.value.trim();
+ if(!text)return;
+ box.value="";
+ addMessage("user",text);
+ answer(text.toLowerCase());
+}
+
+function answer(t){
+ if(t.includes("hello")||t.includes("hi")||t.includes("hey")){
+  reply("Hello boss! JARVIS is online.");
+ }
+ else if(t.includes("your name")){
+  reply("I am JARVIS, your personal assistant.");
+ }
+ else if(t.includes("time")){
+  reply("The time is "+new Date().toLocaleTimeString());
+ }
+ else if(t.includes("date")){
+  reply("Today is "+new Date().toDateString());
+ }
+ else if(t.includes("how are you")){
+  reply("All systems are running perfectly, boss!");
+ }
+ else if(t.includes("joke")){
+  reply("Why did the computer go to the doctor? Because it had a virus!");
+ }
+ else if(t.includes("sad")||t.includes("upset")){
+  reply("I am here for you, boss. Take a deep breath. You are stronger than you think.");
+ }
+ else if(t.includes("motivate")){
+  reply("Keep moving forward, boss. Small steps every day create big results.");
+ }
+ else if(t.includes("youtube")){
+  reply("Opening YouTube.");
+  openSite("https://www.youtube.com");
+ }
+ else if(t.includes("google")){
+  reply("Opening Google.");
+  openSite("https://www.google.com");
+ }
+ else if(t.includes("map")){
+  reply("Opening Google Maps.");
+  openSite("https://www.google.com/maps");
+ }
+ else if(t.includes("thank")){
+  reply("Always welcome, boss!");
+ }
+ else if(t.includes("help")){
+  reply("Try asking me the time, date, a joke, or say open YouTube, Google or Maps.");
+ }
+ else{
+  reply("Sorry boss, I don't know that command yet. Try saying help.");
+ }
+}
+
+function openSite(url){
+ window.open(url,"_blank");
+}
+
+function speakLast(){
+ if(!("speechSynthesis" in window))return;
+ speechSynthesis.cancel();
+ const msg=new SpeechSynthesisUtterance(lastReply);
+ msg.lang="en-IN";
+ msg.rate=0.95;
+ speechSynthesis.speak(msg);
+}
+
+function listen(){
+ const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!SR){
+  reply("Voice recognition is not supported in this browser. Please type your message.");
+  return;
+ }
+ const rec=new SR();
+ rec.lang="en-IN";
+ rec.onresult=function(e){
+  document.getElementById("input").value=e.results[0][0].transcript;
+  send();
+ };
+ rec.onerror=function(){
+  reply("I could not hear you. Please try again or type your message.");
+ };
+ rec.start();
+}
+
+document.getElementById("input").addEventListener("keydown",function(e){
+ if(e.key==="Enter")send();
+});
+</script>
+</body>
+</html>
+
